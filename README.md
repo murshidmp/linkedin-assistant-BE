@@ -1,98 +1,303 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# LinkedIn Assistant - Backend
 
-## Description
+This repository contains the **MVP backend** for a LinkedIn assistant tool, built with **NestJS**, **PostgreSQL**, and **Redis**. The primary features include:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. **Post Module** – CRUD for storing LinkedIn posts (or AI-generated posts).  
+2. **Schedule Module** – Schedules posts for future publishing.  
+3. **Tasks Module** – Uses **BullMQ** to queue and run jobs (e.g., “publish post” at a future date/time).  
+4. **Docker** setup with **PostgreSQL** and **Redis**.  
+5. **Swagger** documentation.
 
-## Project setup
+> **Note**: This MVP intentionally omits user authentication for simplicity.
 
-```bash
-$ npm install
+---
+
+## Project Structure
+
+```
+├── src
+│   ├── app.controller.ts
+│   ├── app.module.ts
+│   ├── app.service.ts
+│   ├── main.ts
+│   ├── post
+│   │   ├── dto
+│   │   │   └── create-post.dto.ts
+│   │   ├── post.controller.ts
+│   │   ├── post.entity.ts
+│   │   ├── post.module.ts
+│   │   └── post.service.ts
+│   ├── schedule
+│   │   ├── dto
+│   │   │   └── create-schedule.dto.ts
+│   │   ├── schedule.controller.ts
+│   │   ├── schedule.entity.ts
+│   │   ├── schedule.module.ts
+│   │   └── schedule.service.ts
+│   └── task
+│       ├── tasks.module.ts
+│       ├── tasks.service.ts
+│       └── tasks.processor.ts
+├── .env
+├── docker-compose.yml
+├── Dockerfile
+├── package.json
+└── README.md
 ```
 
-## Compile and run the project
+### Key Modules
+
+1. **PostModule**  
+   - Manages CRUD for the `Post` entity.  
+   - Endpoints at `/posts`:
+     - `GET /posts` (list)  
+     - `GET /posts/:id` (retrieve)  
+     - `POST /posts` (create)  
+     - `PATCH /posts/:id` (update)  
+     - `DELETE /posts/:id` (delete)
+
+2. **ScheduleModule**  
+   - Stores “scheduled posts” in the `ScheduledPost` entity, referencing a `Post`.  
+   - Endpoints at `/schedule`:
+     - `GET /schedule` (list scheduled items)  
+     - `GET /schedule/:id` (retrieve scheduled item)  
+     - `POST /schedule` (create scheduled item)  
+     - `PATCH /schedule/:id` (update)  
+     - `DELETE /schedule/:id` (remove)  
+   - Initially built with a **cron** approach, but we now integrate BullMQ to handle future tasks.
+
+3. **TasksModule**  
+   - Provides a **BullMQ** queue for scheduling tasks.  
+   - Defines a **processor** that runs the job logic at the scheduled time.  
+   - Exported `TasksService` can be injected into other modules to queue tasks with a **delay** instead of using cron checks.
+
+---
+
+## Getting Started
+
+### 1. Prerequisites
+
+- **Docker** and **Docker Compose** installed on your machine.
+- A **`.env`** file with the following environment variables (adjust if needed):
+  ```bash
+  DB_HOST=db
+  DB_PORT=5432
+  DB_USER=postgres
+  DB_PASS=postgres
+  DB_NAME=linkedin_assistant
+
+  REDIS_HOST=redis
+  REDIS_PORT=6379
+  ```
+
+### 2. Cloning & Setup
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/yourusername/linkedin-assistant.git
+cd linkedin-assistant
 ```
 
-## Run tests
+Make sure you have the following structure:
+
+- `Dockerfile`  
+- `docker-compose.yml`  
+- `package.json`, `package-lock.json`  
+- `src/` folder with all NestJS code  
+- `.env` file with your environment variables
+
+### 3. Docker Compose
+
+We use **docker-compose.yml** to spin up:
+
+1. **backend** (NestJS application)  
+2. **db** (PostgreSQL 14-alpine)  
+3. **redis** (Redis 7-alpine)
+
+#### Example `docker-compose.yml`
+
+```yaml
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkedin_assistant_backend
+    ports:
+      - "3010:3010"
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: development
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14-alpine
+    container_name: linkedin_assistant_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: linkedin_assistant_redis
+    ports:
+      - "6379:6379"
+    # volumes:
+    #   - redis_data:/data
+
+volumes:
+  db_data:
+  # redis_data:
+```
+
+### 4. Dockerfile
+
+A multi-stage build that compiles NestJS and runs it:
+
+```dockerfile
+# Stage 1: Build NestJS
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: Runtime
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+RUN npm ci --production
+EXPOSE 3010
+CMD ["node", "dist/main.js"]
+```
+
+### 5. Running the App
+
+From the project root:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose build
+docker compose up
 ```
 
-## Deployment
+- The NestJS app (backend) is exposed on **port 3010**.  
+- PostgreSQL is on 5432 (mapped locally).  
+- Redis is on 6379.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Once containers are up, check logs:
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+docker compose logs backend
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+You should see NestJS start and connect to both Postgres and Redis.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Usage
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Swagger API Docs
 
-## Support
+By default, **Swagger** is enabled if you have it set up in `main.ts`.  
+- Open `http://localhost:3010/api` (replace `localhost` with your Docker host if remote).  
+- Interact with endpoints under `posts` and `schedule`.  
+- If you added a “tasks” or “ai” route, it should appear as well.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Creating a Post
 
-## Stay in touch
+```bash
+POST http://localhost:3010/posts
+Body: {
+  "content": "Hello from the MVP!"
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Scheduling a Post
+
+```bash
+POST http://localhost:3010/schedule
+Body: {
+  "postId": 1,
+  "scheduledAt": "2025-03-25T10:00:00Z"
+}
+```
+(Or, if using BullMQ for scheduling with a delay, your `ScheduleController` might compute the delay in milliseconds and add a job to a queue.)
+
+---
+
+## Additional Notes
+
+1. **BullMQ & TaskModule**  
+   - We replaced the old cron-based approach with **BullMQ**.  
+   - `TasksService` can add delayed jobs (e.g., publishing a post in the future).  
+   - `tasks.processor.ts` automatically handles the job at the right time.
+
+2. **Environment Variables**  
+   - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`: PostgreSQL settings  
+   - `REDIS_HOST`, `REDIS_PORT`: Redis settings  
+   - `NODE_ENV`: For environment mode (e.g., development/production)
+
+3. **Development vs Production**  
+   - In production, you might want to disable `synchronize: true` in `TypeOrmModule.forRoot` to avoid accidental schema drops/changes.  
+   - Make sure you have a stable Redis and Postgres instance with persistent volumes if you’re storing real data.
+
+4. **Future Enhancements**  
+   - **Auth** module for multi-user scenario.  
+   - **AI** module to integrate with OpenAI or another LLM.  
+   - **Notifications** (email, Slack, etc.) for daily/weekly summaries or post reminders.
+
+---
+
+## Troubleshooting
+
+1. **Connection Refused**  
+   - If Nest can’t reach Postgres or Redis, confirm your `.env` matches Docker service names (`db`, `redis`).  
+   - Check that Docker containers are running.
+
+2. **UnknownDependenciesException** (Common in Nest)  
+   - Means a controller is trying to inject a service that isn’t exported/imported properly in the modules.  
+   - Make sure you **export** your service in one module and **import** that module in the module that needs it.
+
+3. **`crypto.randomUUID`** not found error with `@nestjs/schedule`  
+   - If you see this while using Node 18, you might need a shim or a more recent version of Nest Schedule or define `global.crypto`.
+
+---
+
+## Contributing
+
+1. **Fork** this repo.  
+2. **Create** a feature branch.  
+3. **Commit** your changes.  
+4. **Push** and open a **Pull Request**.
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is (MIT) licensed. See [LICENSE](LICENSE) for details.
+
+---
+
+### That’s It!
+
+You now have a functional, containerized NestJS backend with basic **post** CRUD, **scheduling**, and **BullMQ**-powered tasks. This MVP can serve as a foundation for more advanced LinkedIn automation features.
