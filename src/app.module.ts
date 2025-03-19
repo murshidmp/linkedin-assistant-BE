@@ -3,11 +3,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { PostModule } from './post/post.module';
+import { ScheduleModule } from './schedule/schedule.module';
+import { TasksModule } from './task/task.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // so it's available across the application
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -19,6 +23,15 @@ import { ConfigModule } from '@nestjs/config';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      },
+    }),
+    PostModule,
+    ScheduleModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
