@@ -1,3 +1,13 @@
+import * as nodeCrypto from 'crypto';
+
+// If there's no global crypto, define it for Nest's schedule usage
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = {
+    randomUUID: nodeCrypto.randomUUID,
+  };
+}
+
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -24,6 +34,6 @@ async function bootstrap() {
   }
 
 
-  await app.listen(3010);
+  await app.listen(3000);
 }
 bootstrap();
