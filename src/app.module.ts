@@ -8,6 +8,7 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { TasksModule } from './task/task.module';
 import { BullModule } from '@nestjs/bullmq';
 import { LinkedInAuthModule } from './linkedin-auth/linkedin-auth.module';
+import { LinkedInApiModule } from './linkedin-api/linkedin-api.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LinkedInAuthModule } from './linkedin-auth/linkedin-auth.module';
     ScheduleModule,
     TasksModule,
     LinkedInAuthModule,
+    LinkedInApiModule
   ],
   controllers: [AppController],
   providers: [AppService],
