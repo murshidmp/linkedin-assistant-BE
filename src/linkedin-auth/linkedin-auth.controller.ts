@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { LinkedInAuthService } from './linkedin-auth.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as crypto from 'crypto';
+import { AppService } from 'src/app.service';
 
 @ApiTags('linkedin')
 @Controller('auth/linkedin')
@@ -73,7 +74,7 @@ export class LinkedInAuthController {
 
     // console.log('LinkedIn Access Token:', tokenResponse.access_token);
     // console.log('LinkedIn ID Token:', tokenResponse.id_token); // if OIDC scope was requested
-    return { tokenResponse };
+    console.log( tokenResponse ) 
     // 3) (Optional) Fetch user info from /userinfo endpoint
     // or decode the ID token to get sub, name, email, etc.
     // const userInfo = await this.linkedinAuthService.getUserInfo(tokenResponse.access_token);
