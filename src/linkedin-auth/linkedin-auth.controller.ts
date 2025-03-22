@@ -71,9 +71,9 @@ export class LinkedInAuthController {
     // 2) Exchange the code for tokens (access_token and optionally id_token)
     const tokenResponse = await this.linkedinAuthService.exchangeCodeForToken(code);
 
-    console.log('LinkedIn Access Token:', tokenResponse.access_token);
-    console.log('LinkedIn ID Token:', tokenResponse.id_token); // if OIDC scope was requested
-
+    // console.log('LinkedIn Access Token:', tokenResponse.access_token);
+    // console.log('LinkedIn ID Token:', tokenResponse.id_token); // if OIDC scope was requested
+    return { tokenResponse };
     // 3) (Optional) Fetch user info from /userinfo endpoint
     // or decode the ID token to get sub, name, email, etc.
     // const userInfo = await this.linkedinAuthService.getUserInfo(tokenResponse.access_token);
