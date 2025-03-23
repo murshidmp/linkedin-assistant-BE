@@ -287,17 +287,7 @@ Body: {
 
 1. **Fork** this repo.  
 2. **Create** a feature branch.  
-3. **Commit** your changes.  
+3. **Commit** your changes.     
 4. **Push** and open a **Pull Request**.
 
 ---
-
-## License
-
-This project is (MIT) licensed. See [LICENSE](LICENSE) for details.
-
----
-
-### That’s It!
-
-You now have a functional, containerized NestJS backend with basic **post** CRUD, **scheduling**, and **BullMQ**-powered tasks. This MVP can serve as a foundation for more advanced LinkedIn automation features.
