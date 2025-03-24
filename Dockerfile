@@ -48,7 +48,7 @@ RUN npm ci --production
 # COPY --from=builder /app/.env ./
 
 # Expose the NestJS default port
-EXPOSE 3000
+EXPOSE 3010
 
 # Start the NestJS application
 CMD ["node", "dist/main.js"]
