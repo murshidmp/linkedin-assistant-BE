@@ -99,5 +99,30 @@ export class LinkedInApiController {
     const idArray = ids.split(',').map(id => id.trim());
     return this.linkedinApiService.batchGetImages(accessToken, version, idArray);
   }
+  @Get('my-posts')
+  @ApiOperation({ summary: 'Get posts from the authenticated account' })
+  @ApiResponse({ status: 200, description: 'Posts retrieved successfully' })
+  @ApiQuery({
+    name: 'accessToken',
+    type: String,
+    description: 'Valid LinkedIn access token',
+  })
+  @ApiQuery({
+    name: 'memberUrn',
+    type: String,
+    description: 'Authenticated member URN (e.g., urn:li:person:ABC123)',
+  })
+  @ApiQuery({
+    name: 'version',
+    type: String,
+    description: 'LinkedIn API version in the format YYYYMM (e.g., 202503)',
+  })
+  async getMyPosts(
+    @Query('accessToken') accessToken: string,
+    @Query('memberUrn') memberUrn: string,
+    @Query('version') version: string,
+  ) {
+    return this.linkedinApiService.getPostsForUser(accessToken, memberUrn, version);
+  }
 }
 

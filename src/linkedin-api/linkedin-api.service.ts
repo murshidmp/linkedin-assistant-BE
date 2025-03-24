@@ -177,5 +177,41 @@ export class LinkedInApiService {
       );
     }
   }
+  
+  async getPostsForUser(
+    accessToken: string,
+    authorUrn: string,
+    version: string,
+    start = 0,
+    count = 10,
+  ): Promise<any> {
+    const baseUrl = 'https://api.linkedin.com/rest/posts';
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    'LinkedIn-Version': version,
+    'X-RestLi-Protocol-Version': '2.0.0',
+    'Content-Type': 'application/json',
+  };
+
+
+    // Manually encode the author URN
+  const encodedAuthor = encodeURIComponent(authorUrn);
+  
+  // Build query string exactly as documented
+  const queryString = `author=${encodedAuthor}&q=author&count=${count}&sortBy=LAST_MODIFIED&start=${start}`;
+
+    try {
+      const response = await axios.get(`${baseUrl}?${queryString}`, { headers });
+    } catch (error) {
+      console.error(
+        'Error fetching posts for user:',
+        error.response?.data || error.message,
+      );
+      throw new HttpException(
+        error.response?.data || 'Error fetching posts for user',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   // more methods as needed (get user profile, analytics, etc.)
 }

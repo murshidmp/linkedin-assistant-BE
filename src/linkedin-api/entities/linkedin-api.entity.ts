@@ -16,7 +16,7 @@ export class CreateLinkedInPostDto {
 
   @ApiProperty({
     description: 'The author URN (e.g., organization or member)',
-    example: 'urn:li:organization:5515715',
+    example: 'urn:li:person:5515715',
   })
   author: string;
 
