@@ -1,5 +1,6 @@
 // src/user/user.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity()
 export class User {
@@ -29,6 +30,9 @@ export class User {
 
   @Column({ nullable: true })
   idToken: string;
+
+  @OneToMany(() => Post, post => post.user)
+  posts: Post[];
 
   @CreateDateColumn()
   createdAt: Date;
