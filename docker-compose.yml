@@ -1,15 +1,17 @@
+# docker-compose.yml
 
 services:
   backend:
-    # Instead of building locally, pull from Docker Hub (or ECR, GitHub Container Registry, etc.)
-    image: murshidmp/linkedin-assistant-be:latest
-    platform: linux/amd64
     container_name: linkedin_assistant_backend
+    image: murshidmp/linkedin-assistant-be:latest
+    # Force AMD64 if you're on an ARM/M1 environment and the image doesn't have an arm64 variant
+    platform: linux/amd64
 
-    # If you have environment variables, keep them:
+    # Provide environment variables from your .env file
     env_file:
       - .env
 
+    # Additional environment variables (your Nest app typically reads these)
     environment:
       NODE_ENV: development
       DB_HOST: ${DB_HOST}
@@ -24,29 +26,44 @@ services:
       - db
       - redis
 
-    # Expose your NestJS port
+    # Only exposing port 3010 so you can reach NestJS from the host
     ports:
       - "3010:3010"
 
   db:
-    image: postgres:14-alpine
     container_name: linkedin_assistant_db
+    image: postgres:14-alpine
+    env_file:
+      - .env
+
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
+
+    # If you only need DB access from the 'backend' container,
+    # omit the ports block to avoid the "port already allocated" issue.
+    # Otherwise, if you want to connect from your host to Postgres,
+    # uncomment the lines below (and make sure 5432 is not in use):
+    #
     # ports:
     #   - "5432:5432"
+
     volumes:
       - db_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:7-alpine
     container_name: linkedin_assistant_redis
-    volumes:
-      - redis_data:/data
+    image: redis:7-alpine
+    env_file:
+      - .env
+
+    # If the backend is the only service needing Redis, you can omit port mapping:
     # ports:
     #   - "6379:6379"
+
+    volumes:
+      - redis_data:/data
 
 volumes:
   db_data:
