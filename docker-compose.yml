@@ -1,29 +1,32 @@
-version: '3.8'
+
 services:
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # Instead of building locally, pull from Docker Hub (or ECR, GitHub Container Registry, etc.)
+    image: murshidmp/linkedin-assistant-be:latest
+    platform: linux/amd64
     container_name: linkedin_assistant_backend
-    ports:
-      - "3010:3010"
-    # Load environment variables from .env so the container sees them
+
+    # If you have environment variables, keep them:
     env_file:
-      - ./.env
+      - .env
+
     environment:
       NODE_ENV: development
-      # Pass through DB and Redis vars from .env
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
-
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
+
     depends_on:
       - db
       - redis
+
+    # Expose your NestJS port
+    ports:
+      - "3010:3010"
 
   db:
     image: postgres:14-alpine
