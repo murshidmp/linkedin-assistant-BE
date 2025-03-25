@@ -7,6 +7,12 @@ if (typeof globalThis.crypto === 'undefined') {
   };
 }
 
+// Early in main.ts or app.module
+console.log('DB_HOST is:', process.env.DB_HOST);
+console.log('DB_PORT is:', process.env.DB_PORT);
+console.log('DB_USER is:', process.env.DB_USER);
+console.log('DB_PASS is:', process.env.DB_PASS);
+console.log('DB_NAME is:', process.env.DB_NAME);
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
